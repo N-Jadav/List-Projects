@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import "./App.css";
+import ProjectList from "./ProjectList";
 import { Layout, Button, Card, Row, Col, Modal } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -7,14 +9,14 @@ import TextArea from "antd/es/input/TextArea";
 const { Content } = Layout;
 
 const App = () => {
-  const [projects, setProjects] = useState([]);
-  const [projectName, setProjectName] = useState("");
-  const [showAddCard, setShowAddCard] = useState(false);
-  const [editingProjectId, setEditingProjectId] = useState(null);
-  const [deleteConfirmationVisible, setDeleteConfirmationVisible] =
-    useState(false);
-  const [deletingProjectId, setDeletingProjectId] = useState(null);
+  const [projects, setProjects] = useState([]); // Stores the list of projects
+  const [projectName, setProjectName] = useState(""); // Stores the name of the new project being added
+  const [showAddCard, setShowAddCard] = useState(false); // Controls the visibility of the "Add Card" section
+  const [editingProjectId, setEditingProjectId] = useState(null); // Stores the ID of the project being edited
+  const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false); // Controls the visibility of the delete confirmation modal
+  const [deletingProjectId, setDeletingProjectId] = useState(null); // Stores the ID of the project being deleted
 
+  // Function to handle adding a new project
   const handleAddProject = () => {
     if (projectName) {
       const newProject = {
@@ -29,15 +31,18 @@ const App = () => {
     }
   };
 
+  // Function to show the "Add Card" section
   const handleShowAddCard = () => {
     setShowAddCard(true);
   };
 
+   // Function to handle deleting a project
   const handleDeleteProject = (projectId) => {
     setDeletingProjectId(projectId);
     setDeleteConfirmationVisible(true);
   };
 
+  // Function to confirm the deletion of a project
   const handleConfirmDelete = () => {
     const updatedProjects = projects.filter(
       (project) => project.id !== deletingProjectId
@@ -46,23 +51,28 @@ const App = () => {
     setDeleteConfirmationVisible(false);
   };
 
+  // Function to cancel the deletion of a project
   const handleCancelDelete = () => {
     setDeletingProjectId(null);
     setDeleteConfirmationVisible(false);
   };
 
+  // Function to handle editing a project
   const handleEditProject = (projectId) => {
     setEditingProjectId(projectId);
   };
 
+   // Function to save the changes made to a project
   const handleSaveProject = (projectId) => {
     setEditingProjectId(null);
   };
 
+  // Function to check if a project is currently being edited
   const isEditing = (projectId) => {
     return projectId === editingProjectId;
   };
 
+  // Function to handle changes to the project name
   const handleProjectNameChange = (projectId, value) => {
     const updatedProjects = projects.map((project) => {
       if (project.id === projectId) {
@@ -78,149 +88,77 @@ const App = () => {
 
   return (
     <Layout>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          background: "#F7F9FD",
-          border: "1px solid #979797",
-          justifyContent: "center",
-          padding: "1% 4%"
-        }}
-      >
-        <img src="/ThunkableBeaver.png" alt="Logo" style={{ width: "64px", paddingBottom: "1%"}}/>
+      <div className="header">
+        <img src="/ThunkableBeaver.png" alt="Logo" className="logo"/>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span
-            style={{
-              fontSize: "18px",
-              fontWeight: "700",
-            }}
-          >
+          <span className="project-title">
             My Projects
           </span>  
         </div>
       </div>
-      <div style={{display: 'flex', justifyContent: 'flex-end', background: '#F7F9FD', padding: "1% 4%"}}>
+      <div className="add-button-container">
         <Button
           type="primary"
           shape="circle"
           icon={<PlusOutlined />}
-          style={{
-            backgroundColor: "#3D3A4F",
-            width: "48px",
-            height: "48px",
-            marginRight: "32px",
-            bottom: "37px",
-          }}
+          className="add-button"
           onClick={handleShowAddCard}
         />
       </div>
-      <Content style={{  background: '#F7F9FD', padding: "1% 5%"}}>
+      <Content className="content-container">
         {showAddCard && (
-          <Card style={{border: "1px solid #000000"}} >
+          <Card className="add-card" >
             <Row align="middle" gutter={16}>
               <Col>
                 <img
                   src="/defaultProjectIcon_2x.png"
                   alt="Project"
-                  style={{ width: "48px", height: "48px" }}
+                  className="project-icon"
                 />
               </Col>
               <Col flex="auto">
                 <TextArea
                   autoSize
-                  style={{ width: "20%" }}
+                  className="project-name"
                   placeholder="Name your project"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
                   onPressEnter={(e) => handleAddProject(e.target.value)}
+                  onBlur={(e) => handleAddProject(e.target.value)}
                 />
               </Col>
             </Row>
           </Card>
         )}
         {projects.map((project) => (
-          <Card key={project.id}>
-            <Row>
-              <Col style={{display: "flex", alignItems: 'center'}} span={12}>
-                <img
-                  src="/defaultProjectIcon_2x.png"
-                  alt="Project"
-                  style={{ width: "48px", height: "48px" }}
-                />
-                 {isEditing(project.id) ? (
-                  <TextArea
-                    autoSize
-                    style={{width: '40%'}}
-                    type="textarea"
-                    value={project.name}
-                    onChange={(e) =>
-                      handleProjectNameChange(project.id, e.target.value)
-                    }
-                    onPressEnter={() => handleSaveProject(project.id)}
-                  />
-                ) : (
-                  <TextArea
-                    bordered={false}
-                    autoSize
-                    style={{width: '40%'}}
-                    type="textarea"
-                    value={project.name}
-                  />
-                )}
-                {isEditing(project.id) ? null : (
-                  <img
-                    src="/EditIcon.svg"
-                    alt="Edit"
-                    style={{ width: "24px", height: "24px", cursor: "pointer" }}
-                    onClick={() => handleEditProject(project.id)}
-                    onMouseOver={(e) =>
-                      (e.currentTarget.src = "/EditIcon_Hover.svg")
-                    }
-                    onMouseOut={(e) => (e.currentTarget.src = "/EditIcon.svg")}
-                  />
-                )}
-              </Col>
-              <Col style={{display: "flex", alignItems: 'center', justifyContent: 'space-between'}} span={12}>
-                <span>{project.createdDate}</span>
-                <img
-                  src="/DeleteIcon.svg"
-                  alt="Delete"
-                  style={{ width: "24px", height: "24px", cursor: "pointer" }}
-                  onClick={() => handleDeleteProject(project.id)}
-                  onMouseOver={(e) =>
-                    (e.currentTarget.src = "/DeleteIcon_Hover.svg")
-                  }
-                  onMouseOut={(e) => (e.currentTarget.src = "/DeleteIcon.svg")}
-                />
-              </Col>
-            </Row>
-          </Card>
+            <ProjectList
+            key={project.id}
+            project={project}
+            isEditing={isEditing}
+            handleProjectNameChange={handleProjectNameChange}
+            handleEditProject={handleEditProject}
+            handleSaveProject={handleSaveProject}
+            handleDeleteProject={handleDeleteProject}
+           />
         ))}
-
         <Modal
-          visible={deleteConfirmationVisible}
+          open={deleteConfirmationVisible}
           onOk={handleConfirmDelete}
           onCancel={handleCancelDelete}
           okText="Yes"
           cancelText="No"
         >
-          <div style={{ display: "flex" }}>
+          <div className="delete-confirmation">
             <img
               src="/Question.svg"
               alt="Project"
-              style={{
-                width: "18px",
-                height: "18px",
-                marginTop: "18px",
-                marginRight: "8px",
-              }}
+              className="question-icon"
             />
-            <p style={{ fontWeight: "600" }}>
+            <p className="confirm-delete-text">
               Are you sure you want to delete the project?
             </p>
           </div>
-          <p style={{ marginTop: "0px", marginLeft: "26px" }}>
+          <p className="delete-warning-text">
             This action can't be undone.
           </p>
         </Modal>
